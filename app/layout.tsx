@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
     subsets: ["latin"],
 });
 
-const url = process.env.HOME_URL || "";
+const url = process.env.NEXT_PUBLIC_HOME_URL || "";
 
 export const metadata: Metadata = {
     title: "Revoka - Solana Token Delegation Manager",

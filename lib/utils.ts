@@ -1,16 +1,14 @@
+"use client";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
 }
-
-// lib/config.ts
 export const config = {
     rpcEndpoints: {
-        mainnet:
-            process.env.MAINNET_RPC || "https://api.mainnet-beta.solana.com",
-        devnet: process.env.DEVNET_RPC || "https://api.devnet.solana.com",
+        mainnet: process.env.NEXT_PUBLIC_MAINNET_RPC!,
+        devnet: process.env.NEXT_PUBLIC_DEVNET_RPC!,
     },
     commitmentLevel: "confirmed" as const,
     analytics: {
