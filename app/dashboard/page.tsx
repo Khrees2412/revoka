@@ -31,6 +31,8 @@ const DashboardSection = ({
     loading,
     revoking,
     error,
+    isInitialLoading,
+    isRefreshing,
     onRefresh,
     onRevoke,
     onClearError,
@@ -40,6 +42,8 @@ const DashboardSection = ({
     loading: boolean;
     revoking: string | null;
     error: string | null;
+    isInitialLoading: boolean;
+    isRefreshing: boolean;
     onRefresh: () => void;
     onRevoke: (mint: string) => void;
     onClearError: () => void;
@@ -137,7 +141,7 @@ const DashboardSection = ({
                             other parties
                             {error && (
                                 <span className="block text-yellow-400 text-sm mt-1">
-                                    Currently showing demo data
+                                    {error}
                                 </span>
                             )}
                         </CardDescription>
@@ -175,7 +179,7 @@ const DashboardSection = ({
                     </Alert>
                 ) : (
                     <div className="space-y-4">
-                        {tokens.map((token, index) => (
+                        {tokens.map((token, _) => (
                             <div
                                 key={token.mint}
                                 className="p-4 bg-white/5 rounded-lg border border-white/10"

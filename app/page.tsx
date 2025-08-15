@@ -7,10 +7,8 @@ import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { PublicKey } from "@solana/web3.js";
-import { config } from "@/lib/utils";
 import {
     Card,
-    CardContent,
     CardDescription,
     CardHeader,
     CardTitle,
@@ -100,7 +98,18 @@ export default function Home() {
             );
 
             const signature = await sendTransaction(transaction, connection);
-            await connection.confirmTransaction(signature);
+
+            const { blockhash, lastValidBlockHeight } =
+                await connection.getLatestBlockhash();
+
+            await connection.confirmTransaction(
+                {
+                    signature,
+                    blockhash,
+                    lastValidBlockHeight,
+                },
+                "confirmed"
+            );
 
             await fetchTokens(); // Refresh token list
         } catch (error: any) {
@@ -117,13 +126,12 @@ export default function Home() {
     }, [connected, publicKey, network]);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-            {/* Header */}
-            <header className="border-b border-white/10 bg-black/20 backdrop-blur-sm">
+        <div className="min-h-screen bg-gradient-to-br from-[#18181b] via-[#232526] to-[#414345] text-gray-100">
+            <header className="relative z-10 border-b border-white/10 bg-black/30 backdrop-blur-sm">
                 <div className="container mx-auto px-4 py-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                            <div className="w-10 h-10 bg-gradient-to-br from-[#232526] to-[#414345] rounded-lg flex items-center justify-center">
                                 <Shield className="w-6 h-6 text-white" />
                             </div>
                             <div>
@@ -140,7 +148,7 @@ export default function Home() {
                                 network={network}
                                 setNetwork={setNetwork}
                             />
-                            <WalletMultiButton className="!bg-gradient-to-r !from-purple-600 !to-pink-600 hover:!from-purple-700 hover:!to-pink-700 !border-0 !rounded-lg !font-medium" />
+                            <WalletMultiButton className="!bg-gradient-to-r !from-[#232526] !to-[#414345] hover:!from-[#18181b] hover:!to-[#232526] !border-0 !rounded-lg !font-medium" />
                         </div>
                     </div>
                 </div>
@@ -156,6 +164,8 @@ export default function Home() {
                         loading={loading}
                         revoking={revoking}
                         error={error}
+                        isInitialLoading={isInitialLoading}
+                        isRefreshing={isRefreshing}
                         onRefresh={fetchTokens}
                         onRevoke={revokeDelegate}
                         onClearError={() => setError(null)}
@@ -182,7 +192,7 @@ const WelcomeSection = () => (
             </p>
         </div>
 
-        <Card className="max-w-md mx-auto bg-white/5 border-white/10 backdrop-blur-sm">
+        <Card className="max-w-md mx-auto bg-white/5 border-white/10">
             <CardHeader className="text-center">
                 <Wallet className="w-12 h-12 text-purple-400 mx-auto mb-4" />
                 <CardTitle className="text-white">
@@ -193,13 +203,6 @@ const WelcomeSection = () => (
                     delegations
                 </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-                <WalletMultiButton className="!w-full !bg-gradient-to-r !from-purple-600 !to-pink-600 hover:!from-purple-700 hover:!to-pink-700 !border-0 !rounded-lg !font-medium !py-3" />
-                <p className="text-xs text-gray-500 text-center">
-                    Note: Demo data will be shown due to RPC rate limits. Use a
-                    custom RPC for live data.
-                </p>
-            </CardContent>
         </Card>
     </div>
 );
@@ -221,11 +224,14 @@ const NetworkSelector = ({
                 <SelectValue />
             </SelectTrigger>
             <SelectContent>
+                <SelectItem value={WalletAdapterNetwork.Mainnet}>
+                    Mainnet
+                </SelectItem>
                 <SelectItem value={WalletAdapterNetwork.Devnet}>
                     Devnet
                 </SelectItem>
-                <SelectItem value={WalletAdapterNetwork.Mainnet}>
-                    Mainnet
+                <SelectItem value={WalletAdapterNetwork.Testnet}>
+                    Testnet
                 </SelectItem>
             </SelectContent>
         </Select>

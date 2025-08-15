@@ -1,53 +1,47 @@
-// import { create } from "zustand";
-// import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
-// import { Connection, clusterApiUrl } from "@solana/web3.js";
-
-// interface NetworkState {
-//     network: WalletAdapterNetwork;
-//     connection: Connection;
-//     setNetwork: (network: WalletAdapterNetwork) => void;
-//     getConnection: () => Connection;
-// }
-
-// export const useNetworkStore = create<NetworkState>((set, get) => ({
-//     network: WalletAdapterNetwork.Devnet,
-//     connection: new Connection(clusterApiUrl(WalletAdapterNetwork.Devnet)),
-//     setNetwork: (network) =>
-//         set({
-//             network,
-//             connection: new Connection(clusterApiUrl(network)),
-//         }),
-//     getConnection: () => get().connection,
-// }));
-
 import { create } from "zustand";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
-import { Connection, clusterApiUrl } from "@solana/web3.js";
+import { Connection } from "@solana/web3.js";
 import { config } from "@/lib/utils";
 
 interface NetworkStore {
     network: WalletAdapterNetwork;
     connection: Connection;
     setNetwork: (network: WalletAdapterNetwork) => void;
+    getConnection: () => Connection;
 }
 
-export const useNetworkStore = create<NetworkStore>((set) => ({
+const origin = typeof window !== "undefined" ? window.location.origin : "";
+const mainnetRpcUrl =
+    config?.rpcEndpoints?.mainnet || "https://api.mainnet-beta.solana.com";
+const devnetRpcUrl =
+    config?.rpcEndpoints?.devnet || "https://api.devnet.solana.com";
+const testnetRpcUrl =
+    config?.rpcEndpoints?.testnet || "https://api.testnet.solana.com";
+const commitmentLevel = config?.commitmentLevel || "confirmed";
+
+export const useNetworkStore = create<NetworkStore>((set, get) => ({
     network: WalletAdapterNetwork.Mainnet,
-    connection: new Connection(config.rpcEndpoints.mainnet, {
+    connection: new Connection(mainnetRpcUrl, {
         commitment: config.commitmentLevel,
         confirmTransactionInitialTimeout: 60000,
     }),
     setNetwork: (network) => {
-        const endpoint =
-            network === WalletAdapterNetwork.Mainnet
-                ? config.rpcEndpoints.mainnet
-                : config.rpcEndpoints.devnet;
-
-        set({
-            network,
-            connection: new Connection(endpoint, {
-                commitment: config.commitmentLevel,
-            }),
-        });
+        let endpoint = mainnetRpcUrl;
+        if (network === WalletAdapterNetwork.Devnet) {
+            endpoint = devnetRpcUrl;
+        } else if (network === WalletAdapterNetwork.Testnet) {
+            endpoint = testnetRpcUrl;
+        }
+        try {
+            set({
+                network,
+                connection: new Connection(endpoint, {
+                    commitment: commitmentLevel,
+                }),
+            });
+        } catch (error) {
+            console.error("Failed to create Solana connection:", error);
+        }
     },
+    getConnection: () => get().connection,
 }));

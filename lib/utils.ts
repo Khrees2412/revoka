@@ -9,6 +9,7 @@ export const config = {
     rpcEndpoints: {
         mainnet: process.env.NEXT_PUBLIC_MAINNET_RPC!,
         devnet: process.env.NEXT_PUBLIC_DEVNET_RPC!,
+        testnet: process.env.NEXT_PUBLIC_TESTNET_RPC!,
     },
     commitmentLevel: "confirmed" as const,
     analytics: {
