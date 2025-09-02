@@ -67,7 +67,18 @@ const DashboardSection = ({
             </Alert>
         )}
 
-        {/* Rest of the component remains the same */}
+        {/* Network switching feedback */}
+        {(isInitialLoading || isRefreshing) && (
+            <Alert className="bg-sky-500/10 border-sky-500/20">
+                <Loader2 className="w-4 h-4 text-sky-400 animate-spin" />
+                <AlertDescription className="text-sky-400 ml-2">
+                    {isInitialLoading
+                        ? "Initializing network..."
+                        : "Switching network..."}
+                </AlertDescription>
+            </Alert>
+        )}
+
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
@@ -148,11 +159,11 @@ const DashboardSection = ({
                     </div>
                     <Button
                         onClick={onRefresh}
-                        disabled={loading}
+                        disabled={loading || isRefreshing || isInitialLoading}
                         variant="outline"
                         className="border-white/20 hover:bg-white/10"
                     >
-                        {loading ? (
+                        {loading || isRefreshing || isInitialLoading ? (
                             <Loader2 className="w-4 h-4 animate-spin mr-2" />
                         ) : (
                             <RefreshCw className="w-4 h-4 mr-2" />

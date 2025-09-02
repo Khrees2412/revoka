@@ -1,7 +1,6 @@
 import { create } from "zustand";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import { Connection } from "@solana/web3.js";
-import { config } from "@/lib/utils";
 
 interface NetworkStore {
     network: WalletAdapterNetwork;
@@ -10,38 +9,36 @@ interface NetworkStore {
     getConnection: () => Connection;
 }
 
-const origin = typeof window !== "undefined" ? window.location.origin : "";
-const mainnetRpcUrl =
-    config?.rpcEndpoints?.mainnet || "https://api.mainnet-beta.solana.com";
-const devnetRpcUrl =
-    config?.rpcEndpoints?.devnet || "https://api.devnet.solana.com";
-const testnetRpcUrl =
-    config?.rpcEndpoints?.testnet || "https://api.testnet.solana.com";
-const commitmentLevel = config?.commitmentLevel || "confirmed";
+const getRPCUrl = (network: WalletAdapterNetwork): string => {
+    switch (network) {
+        case WalletAdapterNetwork.Devnet:
+            return "https://api.devnet.solana.com";
+        case WalletAdapterNetwork.Testnet:
+            return "https://api.testnet.solana.com";
+        case WalletAdapterNetwork.Mainnet:
+            return (
+                process.env.MAINNET_RPC || "https://api.mainnet-beta.solana.com"
+            );
+        default:
+            return "https://api.devnet.solana.com";
+    }
+};
 
 export const useNetworkStore = create<NetworkStore>((set, get) => ({
-    network: WalletAdapterNetwork.Mainnet,
-    connection: new Connection(mainnetRpcUrl, {
-        commitment: config.commitmentLevel,
+    network: WalletAdapterNetwork.Devnet,
+    connection: new Connection("https://api.devnet.solana.com", {
+        commitment: "confirmed",
         confirmTransactionInitialTimeout: 60000,
     }),
     setNetwork: (network) => {
-        let endpoint = mainnetRpcUrl;
-        if (network === WalletAdapterNetwork.Devnet) {
-            endpoint = devnetRpcUrl;
-        } else if (network === WalletAdapterNetwork.Testnet) {
-            endpoint = testnetRpcUrl;
-        }
-        try {
-            set({
-                network,
-                connection: new Connection(endpoint, {
-                    commitment: commitmentLevel,
-                }),
-            });
-        } catch (error) {
-            console.error("Failed to create Solana connection:", error);
-        }
+        const endpoint = getRPCUrl(network);
+        set({
+            network,
+            connection: new Connection(endpoint, {
+                commitment: "confirmed",
+                confirmTransactionInitialTimeout: 60000,
+            }),
+        });
     },
     getConnection: () => get().connection,
 }));

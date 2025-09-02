@@ -5,8 +5,6 @@ import { useNetworkStore } from "@/stores/useNetworkStore";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import { PublicKey } from "@solana/web3.js";
 import {
     Card,
     CardDescription,
@@ -24,6 +22,7 @@ import { Shield, Wallet, Network } from "lucide-react";
 import { Transaction } from "@solana/web3.js";
 import { createRevokeInstruction } from "@solana/spl-token";
 import DashboardSection from "./dashboard/page";
+import { sign } from "crypto";
 
 interface TokenDelegation {
     mint: string;
@@ -35,7 +34,7 @@ interface TokenDelegation {
 
 export default function Home() {
     const { network, setNetwork, connection } = useNetworkStore();
-    const { publicKey, connected, sendTransaction } = useWallet();
+    const { publicKey, connected, signTransaction } = useWallet();
     const [tokens, setTokens] = useState<TokenDelegation[]>([]);
     const [loading, setLoading] = useState(false);
     const [revoking, setRevoking] = useState<string | null>(null);
@@ -53,25 +52,21 @@ export default function Home() {
         }
 
         try {
-            const response = await connection.getParsedTokenAccountsByOwner(
-                publicKey,
+            const response = await fetch(
+                `/api/delegations?public_key=${publicKey}&network=${network}`,
                 {
-                    programId: TOKEN_PROGRAM_ID,
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
                 }
             );
 
-            // Filter tokens with delegations
-            const delegatedTokens = response.value
-                .filter((account) => account.account.data.parsed.info.delegate)
-                .map((account) => ({
-                    mint: account.account.data.parsed.info.mint,
-                    delegate: account.account.data.parsed.info.delegate,
-                    amount:
-                        account.account.data.parsed.info.delegatedAmount
-                            ?.uiAmountString || "0",
-                    tokenName: "Unknown Token",
-                    symbol: "UNK",
-                }));
+            if (!response.ok) {
+                throw new Error("Failed to fetch tokens");
+            }
+
+            const { delegatedTokens } = await response.json();
 
             setTokens(delegatedTokens);
         } catch (error: any) {
@@ -83,33 +78,50 @@ export default function Home() {
     };
 
     const revokeDelegate = async (mint: string) => {
-        if (!publicKey || !connection) return;
-
         setRevoking(mint);
         try {
-            const tokenAccounts =
-                await connection.getParsedTokenAccountsByOwner(publicKey, {
-                    mint: new PublicKey(mint),
-                });
-
-            const tokenAccount = tokenAccounts.value[0];
-            const transaction = new Transaction().add(
-                createRevokeInstruction(tokenAccount.pubkey, publicKey, [])
-            );
-
-            const signature = await sendTransaction(transaction, connection);
-
-            const { blockhash, lastValidBlockHeight } =
-                await connection.getLatestBlockhash();
-
-            await connection.confirmTransaction(
+            const response = await fetch(
+                `/api/delegations?public_key=${publicKey}&network=${network}&mint=${mint}`,
                 {
-                    signature,
-                    blockhash,
-                    lastValidBlockHeight,
-                },
-                "confirmed"
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                }
             );
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch token account for revocation");
+            }
+
+            const { transaction } = await response.json();
+
+            if (!transaction) {
+                throw new Error("Failed to create revocation transaction");
+            }
+            const tx = Transaction.from(Buffer.from(transaction, "base64"));
+
+            if (!signTransaction) {
+                throw new Error("Wallet does not support transaction signing");
+            }
+
+            const signedTx = await signTransaction(tx);
+
+            // Serialize signed transaction to base64
+            const signature = signedTx.serialize().toString("base64");
+
+            const res = await fetch(
+                `/api/delegations?network=${network}&signature=${signature}`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+            if (!res.ok) {
+                throw new Error("Failed to confirm revocation transaction");
+            }
 
             await fetchTokens(); // Refresh token list
         } catch (error: any) {
