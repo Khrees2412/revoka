@@ -34,3 +34,8 @@ export interface Token {
     tokenName?: string;
     symbol?: string;
 }
+
+export interface IMetadata {
+    name: string;
+    symbol: string;
+}

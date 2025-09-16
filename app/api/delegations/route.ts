@@ -3,6 +3,32 @@ import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { Connection, PublicKey, Transaction } from "@solana/web3.js";
 import { createRevokeInstruction } from "@solana/spl-token";
 import { Token } from "@/lib/types";
+import { IMetadata } from "@/lib/types";
+import { Metaplex } from "@metaplex-foundation/js";
+
+export async function getTokenMetadata(
+    mint: PublicKey
+): Promise<IMetadata | undefined> {
+    // Connect to the Solana mainnet-beta cluster
+    const connection = new Connection("https://api.mainnet-beta.solana.com");
+
+    // Initialize the Metaplex SDK
+    const metaplex = Metaplex.make(connection);
+
+    try {
+        // Fetch the token metadata using the mint address
+        const metadata = await metaplex.nfts().findByMint({
+            mintAddress: mint,
+        });
+
+        // Log the retrieved metadata
+        console.log("Token Name:", metadata.name);
+        console.log("Token Symbol:", metadata.symbol);
+        return { name: metadata.name, symbol: metadata.symbol };
+    } catch (error) {
+        console.error("Error fetching metadata:", error);
+    }
+}
 
 const getRPCUrl = (network: string): string => {
     switch (network) {
@@ -44,17 +70,28 @@ export async function GET(req: NextRequest) {
         );
 
         // Filter tokens with delegations
-        const delegatedTokens: Token[] = response.value
+        const delegatedTokenPromises = response.value
             .filter((account) => account.account.data.parsed.info.delegate)
-            .map((account) => ({
-                mint: account.account.data.parsed.info.mint,
-                delegate: account.account.data.parsed.info.delegate,
-                amount:
-                    account.account.data.parsed.info.delegatedAmount
-                        ?.uiAmountString || "0",
-                tokenName: "Unknown Token",
-                symbol: "UNK",
-            }));
+            .map(async (account) => {
+                const mintAddress = new PublicKey(
+                    account.account.data.parsed.info.mint
+                );
+                const metadata = await getTokenMetadata(mintAddress);
+                return {
+                    mint: account.account.data.parsed.info.mint,
+                    delegate: account.account.data.parsed.info.delegate,
+                    amount:
+                        account.account.data.parsed.info.delegatedAmount
+                            ?.uiAmountString || "0",
+                    tokenName: metadata?.name || "Unknown Token",
+                    symbol: metadata?.symbol || "UNKNOWN",
+                };
+            });
+
+        // Wait for all metadata fetches to complete
+        const delegatedTokens: Token[] = await Promise.all(
+            delegatedTokenPromises
+        );
 
         return NextResponse.json({
             success: true,
