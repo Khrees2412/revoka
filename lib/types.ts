@@ -26,3 +26,11 @@ export interface RevokeState {
     currentMint: string | null;
     error: string | null;
 }
+
+export interface Token {
+    mint: string;
+    delegate: string;
+    amount: string;
+    tokenName?: string;
+    symbol?: string;
+}

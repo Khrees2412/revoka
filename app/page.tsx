@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useNetworkStore } from "@/stores/useNetworkStore";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { useWallet } from "@solana/wallet-adapter-react";
@@ -20,30 +19,49 @@ import {
 } from "@/components/ui/select";
 import { Shield, Wallet, Network } from "lucide-react";
 import { Transaction } from "@solana/web3.js";
-import { createRevokeInstruction } from "@solana/spl-token";
 import DashboardSection from "./dashboard/page";
-import { sign } from "crypto";
+import { Token } from "@/lib/types";
 
-interface TokenDelegation {
-    mint: string;
-    delegate: string;
-    amount: string;
-    tokenName?: string;
-    symbol?: string;
-}
+// Get the initial network synchronously from localStorage
+const getInitialNetwork = (): WalletAdapterNetwork => {
+    if (typeof window !== "undefined") {
+        const savedNetwork = localStorage.getItem("network");
+        if (
+            savedNetwork &&
+            Object.values(WalletAdapterNetwork).includes(
+                savedNetwork as WalletAdapterNetwork
+            )
+        ) {
+            return savedNetwork as WalletAdapterNetwork;
+        }
+    }
+    return WalletAdapterNetwork.Devnet;
+};
 
 export default function Home() {
-    const { network, setNetwork, connection } = useNetworkStore();
+    const [network, setNetwork] =
+        useState<WalletAdapterNetwork>(getInitialNetwork);
     const { publicKey, connected, signTransaction } = useWallet();
-    const [tokens, setTokens] = useState<TokenDelegation[]>([]);
-    const [loading, setLoading] = useState(false);
+    const [tokens, setTokens] = useState<Token[]>([]);
     const [revoking, setRevoking] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [loading, setLoading] = useState(false);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
     const [isRefreshing, setIsRefreshing] = useState(false);
+    const [hydrated, setHydrated] = useState(false);
+
+    // Ensure component is mounted before rendering wallet-dependent UI
+    useEffect(() => {
+        setHydrated(true);
+    }, []);
+
+    // Save current network to localStorage whenever it changes
+    useEffect(() => {
+        localStorage.setItem("network", network);
+    }, [network]);
 
     const fetchTokens = async (showRefreshState = false) => {
-        if (!publicKey || !connection) return;
+        if (!publicKey) return;
 
         if (showRefreshState) {
             setIsRefreshing(true);
@@ -63,14 +81,15 @@ export default function Home() {
             );
 
             if (!response.ok) {
+                setError("Failed to fetch tokens");
                 throw new Error("Failed to fetch tokens");
             }
 
             const { delegatedTokens } = await response.json();
-
             setTokens(delegatedTokens);
         } catch (error: any) {
             console.error("Error fetching tokens:", error);
+            setError("Error fetching tokens: " + error.message);
         } finally {
             setIsInitialLoading(false);
             setIsRefreshing(false);
@@ -78,55 +97,50 @@ export default function Home() {
     };
 
     const revokeDelegate = async (mint: string) => {
+        setLoading(true);
         setRevoking(mint);
         try {
             const response = await fetch(
                 `/api/delegations?public_key=${publicKey}&network=${network}&mint=${mint}`,
                 {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
+                    headers: { "Content-Type": "application/json" },
                 }
             );
 
-            if (!response.ok) {
-                throw new Error("Failed to fetch token account for revocation");
-            }
+            if (!response.ok) throw new Error("Failed to fetch token account");
 
             const { transaction } = await response.json();
+            if (!transaction) throw new Error("Missing revocation transaction");
 
-            if (!transaction) {
-                throw new Error("Failed to create revocation transaction");
-            }
             const tx = Transaction.from(Buffer.from(transaction, "base64"));
-
-            if (!signTransaction) {
-                throw new Error("Wallet does not support transaction signing");
-            }
+            if (!signTransaction) throw new Error("Wallet cannot sign");
 
             const signedTx = await signTransaction(tx);
 
-            // Serialize signed transaction to base64
-            const signature = signedTx.serialize().toString("base64");
+            const res = await fetch(`/api/delegations?network=${network}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    signedTransaction: signedTx.serialize().toString("base64"),
+                }),
+            });
 
-            const res = await fetch(
-                `/api/delegations?network=${network}&signature=${signature}`,
-                {
-                    method: "PATCH",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
-            if (!res.ok) {
-                throw new Error("Failed to confirm revocation transaction");
+            if (!res.ok) throw new Error("Failed to confirm transaction");
+            const { success } = await res.json();
+            if (!success) {
+                throw new Error("Transaction confirmation failed");
             }
 
-            await fetchTokens(); // Refresh token list
+            await fetchTokens();
+            setError(null);
+            setRevoking(null);
+            setLoading(false);
         } catch (error: any) {
+            setLoading(false);
             setError("Failed to revoke delegation: " + error.message);
         } finally {
+            setLoading(false);
             setRevoking(null);
         }
     };
@@ -167,15 +181,19 @@ export default function Home() {
             </header>
 
             <main className="container mx-auto px-4 py-8">
-                {!connected ? (
+                {!hydrated ? (
+                    <div className="flex justify-center items-center h-64">
+                        <p className="text-gray-400">Loading...</p>
+                    </div>
+                ) : !connected ? (
                     <WelcomeSection />
                 ) : (
                     <DashboardSection
                         publicKey={publicKey}
                         tokens={tokens}
-                        loading={loading}
                         revoking={revoking}
                         error={error}
+                        loading={loading}
                         isInitialLoading={isInitialLoading}
                         isRefreshing={isRefreshing}
                         onRefresh={fetchTokens}
@@ -236,11 +254,11 @@ const NetworkSelector = ({
                 <SelectValue />
             </SelectTrigger>
             <SelectContent>
-                <SelectItem value={WalletAdapterNetwork.Mainnet}>
-                    Mainnet
-                </SelectItem>
                 <SelectItem value={WalletAdapterNetwork.Devnet}>
                     Devnet
+                </SelectItem>
+                <SelectItem value={WalletAdapterNetwork.Mainnet}>
+                    Mainnet
                 </SelectItem>
                 <SelectItem value={WalletAdapterNetwork.Testnet}>
                     Testnet

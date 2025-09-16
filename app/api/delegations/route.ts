@@ -2,14 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { Connection, PublicKey, Transaction } from "@solana/web3.js";
 import { createRevokeInstruction } from "@solana/spl-token";
-
-interface TokenDelegation {
-    mint: string;
-    delegate: string;
-    amount: string;
-    tokenName?: string;
-    symbol?: string;
-}
+import { Token } from "@/lib/types";
 
 const getRPCUrl = (network: string): string => {
     switch (network) {
@@ -51,7 +44,7 @@ export async function GET(req: NextRequest) {
         );
 
         // Filter tokens with delegations
-        const delegatedTokens: TokenDelegation[] = response.value
+        const delegatedTokens: Token[] = response.value
             .filter((account) => account.account.data.parsed.info.delegate)
             .map((account) => ({
                 mint: account.account.data.parsed.info.mint,
@@ -132,24 +125,36 @@ export async function POST(req: NextRequest) {
 }
 
 // this confirms a revocation transaction
-export async function PATCH(req: NextRequest) {
+export async function PUT(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const network = searchParams.get("network");
-    const signature = searchParams.get("signature");
+    const { signedTransaction } = await req.json();
 
-    if (!network || !signature) {
+    if (!network || !signedTransaction) {
         return NextResponse.json({
             success: false,
             message:
-                "one or both of required parameters (network, signature) are missing",
+                "one or both of required parameters (network, signedTransaction) are missing",
         });
     }
 
     const rpcUrl = getRPCUrl(network);
     const connection = new Connection(rpcUrl, "confirmed");
     try {
+        const txBuffer = Buffer.from(signedTransaction, "base64");
+
+        let transaction = Transaction.from(txBuffer);
+
+        // Get fresh blockhash and update transaction
         const { blockhash, lastValidBlockHeight } =
             await connection.getLatestBlockhash();
+        transaction.recentBlockhash = blockhash;
+        transaction.lastValidBlockHeight = lastValidBlockHeight;
+
+        // Re-serialize with fresh blockhash (signatures are preserved)
+        const updatedTxBuffer = transaction.serialize();
+
+        const signature = await connection.sendRawTransaction(updatedTxBuffer);
 
         await connection.confirmTransaction(
             {
@@ -159,6 +164,7 @@ export async function PATCH(req: NextRequest) {
             },
             "confirmed"
         );
+
         return NextResponse.json({
             success: true,
             message: "Transaction confirmed",
