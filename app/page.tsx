@@ -1,3 +1,4 @@
+// app/page.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -19,7 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Shield, Wallet, Network } from "lucide-react";
 import { Transaction } from "@solana/web3.js";
-import DashboardSection from "./dashboard/page";
+import DashboardSection from "@/components/dashboard/DashboardSection"; // ✅ fixed
 import { Token } from "@/lib/types";
 
 // Get the initial network synchronously from localStorage
@@ -50,12 +51,10 @@ export default function Home() {
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [hydrated, setHydrated] = useState(false);
 
-    // Ensure component is mounted before rendering wallet-dependent UI
     useEffect(() => {
         setHydrated(true);
     }, []);
 
-    // Save current network to localStorage whenever it changes
     useEffect(() => {
         localStorage.setItem("network", network);
     }, [network]);

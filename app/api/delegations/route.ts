@@ -143,7 +143,7 @@ export async function PUT(req: NextRequest) {
     try {
         const txBuffer = Buffer.from(signedTransaction, "base64");
 
-        let transaction = Transaction.from(txBuffer);
+        const transaction = Transaction.from(txBuffer);
 
         // Get fresh blockhash and update transaction
         const { blockhash, lastValidBlockHeight } =
