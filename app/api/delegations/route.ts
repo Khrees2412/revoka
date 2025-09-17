@@ -6,7 +6,7 @@ import { Token } from "@/lib/types";
 import { IMetadata } from "@/lib/types";
 import { Metaplex } from "@metaplex-foundation/js";
 
-export async function getTokenMetadata(
+async function getTokenMetadata(
     mint: PublicKey
 ): Promise<IMetadata | undefined> {
     // Connect to the Solana mainnet-beta cluster
