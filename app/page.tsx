@@ -374,10 +374,10 @@ const NetworkSelector = ({
             value={network}
             onValueChange={(value) => setNetwork(value as WalletAdapterNetwork)}
         >
-            <SelectTrigger className="w-32 bg-zinc-900 border-zinc-800 text-white hover:bg-zinc-800 transition-colors">
+            <SelectTrigger className="w-32 bg-zinc-900 border-zinc-800 hover:bg-zinc-800 transition-colors">
                 <SelectValue />
             </SelectTrigger>
-            <SelectContent className="bg-zinc-900 border-zinc-800">
+            <SelectContent className="bg-zinc-400 border-zinc-800">
                 <SelectItem value={WalletAdapterNetwork.Devnet}>
                     Devnet
                 </SelectItem>

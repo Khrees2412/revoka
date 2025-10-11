@@ -220,7 +220,7 @@ const DashboardSection = ({
                         onClick={onRefresh}
                         disabled={loading || isRefreshing || isInitialLoading}
                         variant="outline"
-                        className="border-zinc-800 hover:bg-zinc-900 hover:border-zinc-700 text-white"
+                        className="border-zinc-800 hover:bg-zinc-900 hover:border-zinc-700"
                         size="sm"
                     >
                         {loading || isRefreshing || isInitialLoading ? (

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { TOKEN_PROGRAM_ID, TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
 import { Connection, PublicKey, Transaction } from "@solana/web3.js";
 import { createRevokeInstruction } from "@solana/spl-token";
 import { Token } from "@/lib/types";
@@ -9,8 +9,10 @@ import { Metaplex } from "@metaplex-foundation/js";
 async function getTokenMetadata(
     mint: PublicKey
 ): Promise<IMetadata | undefined> {
+
+    const conn = process.env.MAINNET_RPC || "https://api.mainnet-beta.solana.com"
     // Connect to the Solana mainnet-beta cluster
-    const connection = new Connection("https://api.mainnet-beta.solana.com");
+    const connection = new Connection(conn, "confirmed");
 
     // Initialize the Metaplex SDK
     const metaplex = Metaplex.make(connection);
@@ -21,9 +23,6 @@ async function getTokenMetadata(
             mintAddress: mint,
         });
 
-        // Log the retrieved metadata
-        console.log("Token Name:", metadata.name);
-        console.log("Token Symbol:", metadata.symbol);
         return { name: metadata.name, symbol: metadata.symbol };
     } catch (error) {
         console.error("Error fetching metadata:", error);
@@ -62,15 +61,24 @@ export async function GET(req: NextRequest) {
         const connection = new Connection(rpcUrl, "confirmed");
         const publicKey = new PublicKey(pk);
 
-        const response = await connection.getParsedTokenAccountsByOwner(
-            publicKey,
-            {
+        // Fetch both SPL Token and Token2022 accounts
+        const [splTokenResponse, token2022Response] = await Promise.all([
+            connection.getParsedTokenAccountsByOwner(publicKey, {
                 programId: TOKEN_PROGRAM_ID,
-            }
-        );
+            }),
+            connection.getParsedTokenAccountsByOwner(publicKey, {
+                programId: TOKEN_2022_PROGRAM_ID,
+            }),
+        ]);
+
+        // Combine both token types
+        const allTokenAccounts = [
+            ...splTokenResponse.value,
+            ...token2022Response.value,
+        ];
 
         // Filter tokens with delegations
-        const delegatedTokenPromises = response.value
+        const delegatedTokenPromises = allTokenAccounts
             .filter((account) => account.account.data.parsed.info.delegate)
             .map(async (account) => {
                 const mintAddress = new PublicKey(
@@ -99,7 +107,7 @@ export async function GET(req: NextRequest) {
             delegatedTokens,
         });
     } catch (error: any) {
-        console.error("Error in /api/delegations:", error);
+        console.error("Error in /api/delegations GET:", error);
         return NextResponse.json({
             success: false,
             error: "Failed to fetch token delegations",
@@ -153,6 +161,7 @@ export async function POST(req: NextRequest) {
                 .toString("base64"),
         });
     } catch (error: any) {
+        console.error("Error in /api/delegations POST:", error);
         return NextResponse.json({
             success: false,
             message: "Failed to create revocation transaction",
@@ -207,6 +216,7 @@ export async function PUT(req: NextRequest) {
             message: "Transaction confirmed",
         });
     } catch (error: any) {
+        console.error("Error in /api/delegations PUT:", error);
         return NextResponse.json({
             success: false,
             message: "Failed to confirm transaction",
