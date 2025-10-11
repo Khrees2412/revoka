@@ -1,0 +1,26 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#000000"/>
+
+  <!-- Shield Icon -->
+  <g transform="translate(480, 200)">
+    <rect x="0" y="0" width="120" height="120" rx="20" fill="#ffffff"/>
+    <path d="M60 30L30 40V60C30 75 45 87 60 93C75 87 90 75 90 60V40L60 30Z" fill="#000000"/>
+    <path d="M52 60L58 66L68 54" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Title -->
+  <text x="600" y="400" font-family="system-ui, -apple-system, sans-serif" font-size="72" font-weight="700" fill="#ffffff" text-anchor="middle">
+    Revoka
+  </text>
+
+  <!-- Subtitle -->
+  <text x="600" y="460" font-family="system-ui, -apple-system, sans-serif" font-size="32" font-weight="400" fill="#a1a1aa" text-anchor="middle">
+    Secure Token Delegation Management for Solana
+  </text>
+
+  <!-- Footer -->
+  <text x="600" y="550" font-family="system-ui, -apple-system, sans-serif" font-size="20" fill="#52525b" text-anchor="middle">
+    by Debyth
+  </text>
+</svg>

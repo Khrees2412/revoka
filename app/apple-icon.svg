@@ -1,0 +1,10 @@
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="180" height="180" rx="40" fill="#ffffff"/>
+
+  <!-- Shield Icon - Larger -->
+  <path d="M90 45L60 55V80C60 105 75 125 90 135C105 125 120 105 120 80V55L90 45Z" fill="#000000" stroke="#000000" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Checkmark inside shield -->
+  <path d="M77 90L87 100L103 80" stroke="#ffffff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
