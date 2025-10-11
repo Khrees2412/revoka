@@ -18,7 +18,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Shield, Wallet, Network } from "lucide-react";
+import { Shield, Wallet, Network, CheckCircle } from "lucide-react";
 import { Transaction } from "@solana/web3.js";
 import DashboardSection from "@/components/dashboard/DashboardSection"; // ✅ fixed
 import { Token } from "@/lib/types";
@@ -151,38 +151,38 @@ export default function Home() {
     }, [connected, publicKey, network]);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[#18181b] via-[#232526] to-[#414345] text-gray-100">
-            <header className="relative z-10 border-b border-white/10 bg-black/30 backdrop-blur-sm">
-                <div className="container mx-auto px-4 py-4">
-                    <div className="flex items-center justify-between">
+        <div className="min-h-screen bg-black text-white">
+            <header className="sticky top-0 z-50 border-b border-zinc-800 bg-black/95 backdrop-blur supports-[backdrop-filter]:bg-black/60">
+                <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex h-16 items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-[#232526] to-[#414345] rounded-lg flex items-center justify-center">
-                                <Shield className="w-6 h-6 text-white" />
+                            <div className="flex h-9 w-9 items-center justify-center rounded-md bg-white">
+                                <Shield className="h-5 w-5 text-black" />
                             </div>
                             <div>
-                                <h1 className="text-2xl font-bold text-white">
+                                <h1 className="text-xl font-semibold tracking-tight">
                                     Revoka
                                 </h1>
-                                <p className="text-sm text-gray-400">
-                                    Token Delegation Manager
+                                <p className="text-[10px] text-zinc-500 -mt-0.5">
+                                    by debyth
                                 </p>
                             </div>
                         </div>
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-3">
                             <NetworkSelector
                                 network={network}
                                 setNetwork={setNetwork}
                             />
-                            <WalletMultiButton className="!bg-gradient-to-r !from-[#232526] !to-[#414345] hover:!from-[#18181b] hover:!to-[#232526] !border-0 !rounded-lg !font-medium" />
+                            <WalletMultiButton className="!bg-white hover:!bg-zinc-100 !text-black !border-0 !rounded-md !font-medium !text-sm !transition-colors" />
                         </div>
                     </div>
                 </div>
             </header>
 
-            <main className="container mx-auto px-4 py-8">
+            <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 {!hydrated ? (
                     <div className="flex justify-center items-center h-64">
-                        <p className="text-gray-400">Loading...</p>
+                        <p className="text-zinc-500">Loading...</p>
                     </div>
                 ) : !connected ? (
                     <WelcomeSection />
@@ -206,34 +206,160 @@ export default function Home() {
 }
 
 const WelcomeSection = () => (
-    <div className="max-w-4xl mx-auto text-center py-20">
-        <div className="mb-8">
-            <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <Shield className="w-10 h-10 text-white" />
+    <div className="max-w-6xl mx-auto px-4">
+        <div className="text-center mb-20 pt-12">
+            <div className="inline-flex h-16 w-16 items-center justify-center rounded-xl bg-white mb-6">
+                <Shield className="h-8 w-8 text-black" />
             </div>
-            <h2 className="text-5xl font-bold text-white mb-4">
-                Secure Your Solana Tokens
+            <h2 className="text-6xl font-bold tracking-tight mb-6 leading-[1.05]">
+                Clean Up Your
+                <br />
+                Token Approvals
             </h2>
-            <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-                Revoka helps you manage and revoke token delegations on Solana.
-                Keep your assets secure by monitoring and controlling who has
-                access to your tokens.
+            <p className="text-xl text-zinc-400 max-w-2xl mx-auto leading-relaxed font-light">
+                Managing token delegations on Solana shouldn't be complicated.
+                View all your active approvals and revoke the ones you don't need anymore—simple as that.
             </p>
         </div>
 
-        <Card className="max-w-md mx-auto bg-white/5 border-white/10">
-            <CardHeader className="text-center">
-                <Wallet className="w-12 h-12 text-purple-400 mx-auto mb-4" />
-                <CardTitle className="text-white">
-                    Connect Your Wallet
-                </CardTitle>
-                <CardDescription className="text-gray-400">
-                    Connect your Solana wallet to view and manage token
-                    delegations
-                </CardDescription>
-            </CardHeader>
-        </Card>
+        {/* How It Works */}
+        <div className="grid md:grid-cols-3 gap-6 mb-20">
+            <FeatureCard
+                icon={<Wallet className="h-6 w-6" />}
+                title="1. Connect Your Wallet"
+                description="Securely connect your Solana wallet. We never ask for your private keys or seed phrase."
+            />
+            <FeatureCard
+                icon={<Shield className="h-6 w-6" />}
+                title="2. Review Delegations"
+                description="See all active token approvals with full transparency on which programs can spend your tokens."
+            />
+            <FeatureCard
+                icon={<Network className="h-6 w-6" />}
+                title="3. Revoke Safely"
+                description="Remove any approval with one click. Each revocation is a simple on-chain transaction you control."
+            />
+        </div>
+
+        {/* Best Practices */}
+        <div className="mb-20 max-w-4xl mx-auto">
+            <h3 className="text-2xl font-semibold mb-8 text-center">Security Best Practices</h3>
+            <div className="grid md:grid-cols-2 gap-4">
+                <div className="border border-zinc-800 rounded-lg p-6 bg-zinc-950">
+                    <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center mb-4">
+                        <CheckCircle className="h-5 w-5 text-zinc-400" />
+                    </div>
+                    <h4 className="font-semibold mb-2">Audit Regularly</h4>
+                    <p className="text-sm text-zinc-400 font-light leading-relaxed">
+                        Check your active delegations monthly. Revoke approvals for services you no longer use.
+                    </p>
+                </div>
+                <div className="border border-zinc-800 rounded-lg p-6 bg-zinc-950">
+                    <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center mb-4">
+                        <CheckCircle className="h-5 w-5 text-zinc-400" />
+                    </div>
+                    <h4 className="font-semibold mb-2">Trust but Verify</h4>
+                    <p className="text-sm text-zinc-400 font-light leading-relaxed">
+                        Only approve tokens for protocols you trust. Always verify contract addresses before approving.
+                    </p>
+                </div>
+                <div className="border border-zinc-800 rounded-lg p-6 bg-zinc-950">
+                    <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center mb-4">
+                        <CheckCircle className="h-5 w-5 text-zinc-400" />
+                    </div>
+                    <h4 className="font-semibold mb-2">Revoke After Use</h4>
+                    <p className="text-sm text-zinc-400 font-light leading-relaxed">
+                        Finished with a DeFi protocol? Revoke its access immediately to minimize your attack surface.
+                    </p>
+                </div>
+                <div className="border border-zinc-800 rounded-lg p-6 bg-zinc-950">
+                    <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center mb-4">
+                        <CheckCircle className="h-5 w-5 text-zinc-400" />
+                    </div>
+                    <h4 className="font-semibold mb-2">Stay Informed</h4>
+                    <p className="text-sm text-zinc-400 font-light leading-relaxed">
+                        Follow protocol updates and security advisories. Act quickly if a service you've approved is compromised.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        {/* CTA */}
+        <div className="max-w-2xl mx-auto text-center py-12 px-8 border border-zinc-800 rounded-xl bg-zinc-950 mb-12">
+            <Wallet className="h-12 w-12 mx-auto mb-6 text-zinc-400" />
+            <h3 className="text-3xl font-semibold mb-4">
+                Ready to Secure Your Tokens?
+            </h3>
+            <p className="text-zinc-400 mb-8 font-light leading-relaxed">
+                Connect your Solana wallet to see all active token delegations.
+                Free to use, no registration required.
+            </p>
+            <WalletMultiButton className="!bg-white hover:!bg-zinc-100 !text-black !border-0 !rounded-md !font-medium !transition-colors !text-base !px-8 !py-6" />
+            <p className="text-xs text-zinc-600 mt-6">
+                Your wallet, your control. We never store your private keys.
+            </p>
+        </div>
+
+        {/* About / Creator Pitch */}
+        <div className="max-w-3xl mx-auto mb-12">
+            <div className="border border-zinc-800 rounded-xl p-8 bg-zinc-950">
+                <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0 mt-1">
+                        <Shield className="h-5 w-5 text-zinc-400" />
+                    </div>
+                    <div>
+                        <h3 className="text-xl font-semibold mb-3">Built by Debyth</h3>
+                        <p className="text-zinc-400 leading-relaxed font-light mb-4">
+                            At <a href="https://debyth.com" target="_blank" rel="noopener noreferrer" className="text-white hover:underline">Debyth</a>,
+                            we're building automated payment infrastructure for Solana—think recurring payments
+                            and direct debits with stablecoins. These features rely on token delegations to work seamlessly.
+                        </p>
+                        <p className="text-zinc-400 leading-relaxed font-light mb-4">
+                            While building Debyth, we realized users needed an easy way to monitor and manage
+                            these approvals. Revoka solves that. Whether you're using automated payments, DeFi protocols,
+                            or any dApp that requires token approvals, Revoka gives you full visibility and control.
+                        </p>
+                        <p className="text-zinc-400 leading-relaxed font-light mb-4">
+                            No more digging through blockchain explorers or running CLI commands. Just connect your wallet,
+                            see your active delegations, and revoke the ones you don't need anymore.
+                        </p>
+                        <div className="flex gap-4">
+                            <a
+                                href="https://debyth.com"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-block text-sm text-zinc-400 hover:text-white transition-colors underline underline-offset-4"
+                            >
+                                Learn more about Debyth →
+                            </a>
+                            <a
+                                href="https://twitter.com/debyth_hq"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-block text-sm text-zinc-400 hover:text-white transition-colors underline underline-offset-4"
+                            >
+                                Follow on Twitter →
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+);
+
+const FeatureCard = ({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) => (
+    <Card className="bg-zinc-950 border-zinc-800 p-6 hover:border-zinc-700 transition-colors">
+        <div className="mb-4 flex justify-start text-white">
+            {icon}
+        </div>
+        <CardTitle className="text-white text-lg font-semibold mb-2 text-left">
+            {title}
+        </CardTitle>
+        <CardDescription className="text-zinc-400 text-sm text-left font-light leading-relaxed">
+            {description}
+        </CardDescription>
+    </Card>
 );
 
 const NetworkSelector = ({
@@ -244,15 +370,14 @@ const NetworkSelector = ({
     setNetwork: (network: WalletAdapterNetwork) => void;
 }) => (
     <div className="flex items-center gap-2">
-        <Network className="w-4 h-4 text-gray-400" />
         <Select
             value={network}
             onValueChange={(value) => setNetwork(value as WalletAdapterNetwork)}
         >
-            <SelectTrigger className="w-32 bg-white/5 border-white/20 text-white">
+            <SelectTrigger className="w-32 bg-zinc-900 border-zinc-800 text-white hover:bg-zinc-800 transition-colors">
                 <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-zinc-900 border-zinc-800">
                 <SelectItem value={WalletAdapterNetwork.Devnet}>
                     Devnet
                 </SelectItem>

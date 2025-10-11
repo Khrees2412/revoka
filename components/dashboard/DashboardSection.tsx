@@ -34,15 +34,15 @@ interface DashboardSectionProps {
 }
 
 const WalletCard = ({ publicKey }: { publicKey: PublicKey | null }) => (
-    <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
+    <Card className="bg-zinc-950 border-zinc-800">
         <CardContent className="p-6">
             <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                    <Wallet className="w-6 h-6 text-blue-400" />
+                <div className="w-10 h-10 bg-zinc-900 rounded-lg flex items-center justify-center">
+                    <Wallet className="w-5 h-5 text-zinc-400" />
                 </div>
                 <div>
-                    <p className="text-sm text-gray-400">Connected Wallet</p>
-                    <p className="text-lg font-semibold text-white truncate">
+                    <p className="text-xs text-zinc-500 font-medium">Connected Wallet</p>
+                    <p className="text-sm font-mono font-medium text-white truncate mt-0.5">
                         {publicKey
                             ? `${publicKey.toString().slice(0, 8)}...${publicKey
                                   .toString()
@@ -56,15 +56,15 @@ const WalletCard = ({ publicKey }: { publicKey: PublicKey | null }) => (
 );
 
 const DelegationsCard = ({ tokens }: { tokens: Token[] }) => (
-    <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
+    <Card className="bg-zinc-950 border-zinc-800">
         <CardContent className="p-6">
             <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-orange-500/20 rounded-lg flex items-center justify-center">
-                    <AlertTriangle className="w-6 h-6 text-orange-400" />
+                <div className="w-10 h-10 bg-zinc-900 rounded-lg flex items-center justify-center">
+                    <AlertTriangle className="w-5 h-5 text-zinc-400" />
                 </div>
                 <div>
-                    <p className="text-sm text-gray-400">Active Delegations</p>
-                    <p className="text-2xl font-bold text-white">
+                    <p className="text-xs text-zinc-500 font-medium">Active Delegations</p>
+                    <p className="text-2xl font-semibold text-white mt-0.5">
                         {tokens.length}
                     </p>
                 </div>
@@ -74,15 +74,15 @@ const DelegationsCard = ({ tokens }: { tokens: Token[] }) => (
 );
 
 const SecurityStatusCard = ({ tokens }: { tokens: Token[] }) => (
-    <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
+    <Card className="bg-zinc-950 border-zinc-800">
         <CardContent className="p-6">
             <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center">
-                    <CheckCircle className="w-6 h-6 text-green-400" />
+                <div className="w-10 h-10 bg-zinc-900 rounded-lg flex items-center justify-center">
+                    <CheckCircle className="w-5 h-5 text-zinc-400" />
                 </div>
                 <div>
-                    <p className="text-sm text-gray-400">Security Status</p>
-                    <p className="text-lg font-semibold text-green-400">
+                    <p className="text-xs text-zinc-500 font-medium">Security Status</p>
+                    <p className="text-sm font-medium text-white mt-0.5">
                         {tokens.length === 0 ? "Secure" : "Review Needed"}
                     </p>
                 </div>
@@ -100,39 +100,39 @@ const DelegationItem = ({
     revoking: string | null;
     onRevoke: (mint: string) => void;
 }) => (
-    <div className="p-4 bg-white/5 rounded-lg border border-white/10">
-        <div className="flex items-center justify-between">
-            <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-                        <span className="text-white font-bold text-sm">
+    <div className="p-5 bg-zinc-950 rounded-lg border border-zinc-800 hover:border-zinc-700 transition-colors">
+        <div className="flex items-start justify-between gap-4">
+            <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center flex-shrink-0">
+                        <span className="text-black font-semibold text-sm">
                             {token.symbol?.charAt(0) || "T"}
                         </span>
                     </div>
-                    <div>
-                        <h4 className="font-semibold text-white">
+                    <div className="min-w-0 flex-1">
+                        <h4 className="font-semibold text-white text-base">
                             {token.tokenName}
                         </h4>
-                        <p className="text-sm text-gray-400">{token.symbol}</p>
+                        <p className="text-sm text-zinc-500 font-mono">{token.symbol}</p>
                     </div>
                     <Badge
                         variant="outline"
-                        className="border-orange-500/50 text-orange-400"
+                        className="border-zinc-700 text-zinc-400 text-xs"
                     >
                         Delegated
                     </Badge>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                    <div>
-                        <span className="text-gray-400">Delegate: </span>
-                        <span className="text-white font-mono">
+                <div className="space-y-2 text-sm">
+                    <div className="flex items-center gap-2">
+                        <span className="text-zinc-500 font-medium min-w-[70px]">Delegate:</span>
+                        <span className="text-white font-mono text-xs">
                             {token.delegate.slice(0, 8)}...
                             {token.delegate.slice(-8)}
                         </span>
                     </div>
-                    <div>
-                        <span className="text-gray-400">Amount: </span>
-                        <span className="text-white">
+                    <div className="flex items-center gap-2">
+                        <span className="text-zinc-500 font-medium min-w-[70px]">Amount:</span>
+                        <span className="text-white font-medium">
                             {token.amount} {token.symbol}
                         </span>
                     </div>
@@ -142,11 +142,12 @@ const DelegationItem = ({
                 onClick={() => onRevoke(token.mint)}
                 disabled={revoking === token.mint}
                 variant="destructive"
-                className="ml-4"
+                className="ml-4 shrink-0"
+                size="sm"
             >
                 {revoking === token.mint ? (
                     <>
-                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                        <Loader2 className="w-3.5 h-3.5 animate-spin mr-2" />
                         Revoking...
                     </>
                 ) : (
@@ -171,15 +172,15 @@ const DashboardSection = ({
 }: DashboardSectionProps) => (
     <div className="max-w-6xl mx-auto space-y-6">
         {error && (
-            <Alert className="bg-yellow-500/10 border-yellow-500/20">
-                <AlertTriangle className="w-4 h-4 text-yellow-400" />
-                <AlertDescription className="text-yellow-400 flex items-center justify-between">
+            <Alert className="bg-red-950 border-red-900">
+                <AlertTriangle className="w-4 h-4 text-red-400" />
+                <AlertDescription className="text-red-400 flex items-center justify-between">
                     <span>{error}</span>
                     <Button
                         onClick={onClearError}
                         variant="ghost"
                         size="sm"
-                        className="text-yellow-400 hover:text-yellow-300 h-auto p-1"
+                        className="text-red-400 hover:text-red-300 h-auto p-1"
                     >
                         ×
                     </Button>
@@ -188,9 +189,9 @@ const DashboardSection = ({
         )}
 
         {(isInitialLoading || isRefreshing) && (
-            <Alert className="bg-sky-500/10 border-sky-500/20">
-                <Loader2 className="w-4 h-4 text-sky-400 animate-spin" />
-                <AlertDescription className="text-sky-400 ml-2">
+            <Alert className="bg-zinc-950 border-zinc-800">
+                <Loader2 className="w-4 h-4 text-zinc-400 animate-spin" />
+                <AlertDescription className="text-zinc-400 ml-2">
                     {isInitialLoading
                         ? "Initializing network..."
                         : "Switching network..."}
@@ -198,34 +199,29 @@ const DashboardSection = ({
             </Alert>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <WalletCard publicKey={publicKey} />
             <DelegationsCard tokens={tokens} />
             <SecurityStatusCard tokens={tokens} />
         </div>
 
-        <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
+        <Card className="bg-zinc-950 border-zinc-800">
             <CardHeader>
                 <div className="flex items-center justify-between">
                     <div>
-                        <CardTitle className="text-white">
+                        <CardTitle className="text-white text-xl font-semibold">
                             Token Delegations
                         </CardTitle>
-                        <CardDescription className="text-gray-400">
-                            Manage tokens where you've delegated authority to
-                            other parties
-                            {error && (
-                                <span className="block text-yellow-400 text-sm mt-1">
-                                    {error}
-                                </span>
-                            )}
+                        <CardDescription className="text-zinc-400 font-light">
+                            Manage tokens where you've delegated authority to other parties
                         </CardDescription>
                     </div>
                     <Button
                         onClick={onRefresh}
                         disabled={loading || isRefreshing || isInitialLoading}
                         variant="outline"
-                        className="border-white/20 hover:bg-white/10"
+                        className="border-zinc-800 hover:bg-zinc-900 hover:border-zinc-700 text-white"
+                        size="sm"
                     >
                         {loading || isRefreshing || isInitialLoading ? (
                             <Loader2 className="w-4 h-4 animate-spin mr-2" />
@@ -238,22 +234,21 @@ const DashboardSection = ({
             </CardHeader>
             <CardContent>
                 {loading ? (
-                    <div className="flex items-center justify-center py-12">
-                        <Loader2 className="w-8 h-8 animate-spin text-purple-400" />
-                        <span className="ml-3 text-gray-400">
+                    <div className="flex items-center justify-center py-16">
+                        <Loader2 className="w-6 h-6 animate-spin text-zinc-400" />
+                        <span className="ml-3 text-zinc-500">
                             Loading delegations...
                         </span>
                     </div>
                 ) : tokens.length === 0 ? (
-                    <Alert className="bg-green-500/10 border-green-500/20">
-                        <CheckCircle className="w-4 h-4 text-green-400" />
-                        <AlertDescription className="text-green-400">
-                            No active token delegations found. Your tokens are
-                            secure!
+                    <Alert className="bg-zinc-900 border-zinc-800">
+                        <CheckCircle className="w-4 h-4 text-zinc-400" />
+                        <AlertDescription className="text-zinc-400">
+                            No active token delegations found. Your tokens are secure!
                         </AlertDescription>
                     </Alert>
                 ) : (
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                         {tokens.map((token) => (
                             <DelegationItem
                                 key={token.mint}
