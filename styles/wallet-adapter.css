@@ -1,0 +1,82 @@
+/* Custom Solana Wallet Adapter Styling */
+
+/* Modal Background */
+.wallet-adapter-modal-wrapper {
+    background: rgba(0, 0, 0, 0.9) !important;
+}
+
+/* Modal Container */
+.wallet-adapter-modal {
+    background: #09090b !important; /* zinc-950 */
+    border: 1px solid #27272a !important; /* zinc-800 */
+    border-radius: 12px !important;
+    padding: 24px !important;
+}
+
+/* Modal Title */
+.wallet-adapter-modal-title {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    font-size: 20px !important;
+}
+
+/* Wallet List Items */
+.wallet-adapter-modal-list li {
+    background: #18181b !important; /* zinc-900 */
+    border: 1px solid #27272a !important; /* zinc-800 */
+    border-radius: 8px !important;
+    margin-bottom: 8px !important;
+    transition: all 0.2s !important;
+}
+
+.wallet-adapter-modal-list li:hover {
+    background: #27272a !important; /* zinc-800 */
+    border-color: #3f3f46 !important; /* zinc-700 */
+}
+
+/* Wallet Name */
+.wallet-adapter-modal-list .wallet-adapter-button span {
+    color: #ffffff !important;
+}
+
+/* Close Button */
+.wallet-adapter-modal-button-close {
+    background: #18181b !important;
+    border: 1px solid #27272a !important;
+}
+
+.wallet-adapter-modal-button-close:hover {
+    background: #27272a !important;
+}
+
+/* Connect Button */
+.wallet-adapter-button {
+    background: #ffffff !important;
+    color: #000000 !important;
+    border-radius: 6px !important;
+    font-weight: 500 !important;
+    transition: all 0.2s !important;
+}
+
+.wallet-adapter-button:hover {
+    background: #f4f4f5 !important; /* zinc-100 */
+}
+
+/* Dropdown menu */
+.wallet-adapter-dropdown {
+    background: #09090b !important;
+    border: 1px solid #27272a !important;
+    border-radius: 8px !important;
+}
+
+.wallet-adapter-dropdown-list {
+    background: #09090b !important;
+}
+
+.wallet-adapter-dropdown-list-item {
+    color: #ffffff !important;
+}
+
+.wallet-adapter-dropdown-list-item:hover {
+    background: #18181b !important;
+}

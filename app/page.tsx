@@ -126,13 +126,19 @@ export default function Home() {
             });
 
             if (!res.ok) throw new Error("Failed to confirm transaction");
-            const { success } = await res.json();
+            const { success, signature } = await res.json();
             if (!success) {
                 throw new Error("Transaction confirmation failed");
             }
 
+            // Show success message with explorer link
+            if (signature) {
+                const cluster = network === 'mainnet-beta' ? '' : `?cluster=${network}`;
+                const explorerUrl = `https://explorer.solana.com/tx/${signature}${cluster}`;
+                setError(`✅ Revoked successfully! View: ${explorerUrl}`);
+            }
+
             await fetchTokens();
-            setError(null);
             setRevoking(null);
             setLoading(false);
         } catch (error: any) {
@@ -141,6 +147,56 @@ export default function Home() {
         } finally {
             setLoading(false);
             setRevoking(null);
+        }
+    };
+
+    const revokeAll = async () => {
+        setLoading(true);
+        try {
+            const response = await fetch(
+                `/api/delegations?public_key=${publicKey}&network=${network}`,
+                {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                }
+            );
+
+            if (!response.ok) throw new Error("Failed to create bulk revocation");
+
+            const { transaction, count } = await response.json();
+            if (!transaction) throw new Error("Missing bulk revocation transaction");
+
+            const tx = Transaction.from(Buffer.from(transaction, "base64"));
+            if (!signTransaction) throw new Error("Wallet cannot sign");
+
+            const signedTx = await signTransaction(tx);
+
+            const res = await fetch(`/api/delegations?network=${network}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    signedTransaction: signedTx.serialize().toString("base64"),
+                }),
+            });
+
+            if (!res.ok) throw new Error("Failed to confirm bulk transaction");
+            const { success, signature } = await res.json();
+            if (!success) {
+                throw new Error("Bulk transaction confirmation failed");
+            }
+
+            // Show success message with explorer link
+            if (signature) {
+                const cluster = network === 'mainnet-beta' ? '' : `?cluster=${network}`;
+                const explorerUrl = `https://explorer.solana.com/tx/${signature}${cluster}`;
+                setError(`✅ Successfully revoked ${count} delegations! View: ${explorerUrl}`);
+            }
+
+            await fetchTokens();
+            setLoading(false);
+        } catch (error: any) {
+            setLoading(false);
+            setError("Failed to revoke all delegations: " + error.message);
         }
     };
 
@@ -197,6 +253,7 @@ export default function Home() {
                         isRefreshing={isRefreshing}
                         onRefresh={fetchTokens}
                         onRevoke={revokeDelegate}
+                        onRevokeAll={revokeAll}
                         onClearError={() => setError(null)}
                     />
                 )}

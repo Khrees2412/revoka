@@ -3,6 +3,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { WalletProvider } from "@/components/provider/solana";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import "../styles/wallet-adapter.css";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",

@@ -30,6 +30,7 @@ interface DashboardSectionProps {
     isRefreshing: boolean;
     onRefresh: () => void;
     onRevoke: (mint: string) => void;
+    onRevokeAll?: () => void;
     onClearError: () => void;
 }
 
@@ -168,6 +169,7 @@ const DashboardSection = ({
     isRefreshing,
     onRefresh,
     onRevoke,
+    onRevokeAll,
     onClearError,
 }: DashboardSectionProps) => (
     <div className="max-w-6xl mx-auto space-y-6">
@@ -216,20 +218,37 @@ const DashboardSection = ({
                             Manage tokens where you've delegated authority to other parties
                         </CardDescription>
                     </div>
-                    <Button
-                        onClick={onRefresh}
-                        disabled={loading || isRefreshing || isInitialLoading}
-                        variant="outline"
-                        className="border-zinc-800 hover:bg-zinc-900 hover:border-zinc-700"
-                        size="sm"
-                    >
-                        {loading || isRefreshing || isInitialLoading ? (
-                            <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                        ) : (
-                            <RefreshCw className="w-4 h-4 mr-2" />
+                    <div className="flex gap-2">
+                        {onRevokeAll && tokens.length > 1 && (
+                            <Button
+                                onClick={onRevokeAll}
+                                disabled={loading || isRefreshing || isInitialLoading || !!revoking}
+                                variant="destructive"
+                                size="sm"
+                            >
+                                {loading ? (
+                                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                                ) : (
+                                    <AlertTriangle className="w-4 h-4 mr-2" />
+                                )}
+                                Revoke All ({tokens.length})
+                            </Button>
                         )}
+                        <Button
+                            onClick={onRefresh}
+                            disabled={loading || isRefreshing || isInitialLoading}
+                            variant="outline"
+                            className="border-zinc-800 hover:bg-zinc-900 hover:border-zinc-700 hover:text-white"
+                            size="sm"
+                        >
+                            {loading || isRefreshing || isInitialLoading ? (
+                                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                            ) : (
+                                <RefreshCw className="w-4 h-4 mr-2" />
+                            )}
                         Refresh
                     </Button>
+                    </div>
                 </div>
             </CardHeader>
             <CardContent>

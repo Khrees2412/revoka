@@ -33,9 +33,11 @@ export interface Token {
     amount: string;
     tokenName?: string;
     symbol?: string;
+    image?: string;
 }
 
 export interface IMetadata {
     name: string;
     symbol: string;
+    image?: string;
 }
