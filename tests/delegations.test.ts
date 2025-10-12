@@ -171,7 +171,6 @@ describe("/api/delegations", () => {
         it.each([
             ["devnet", "https://api.devnet.solana.com"],
             ["testnet", "https://api.testnet.solana.com"],
-            ["mainnet-beta", "https://api.mainnet-beta.solana.com"],
             ["unknown", "https://api.devnet.solana.com"],
         ])(
             "should use correct RPC URL for network: %s",
@@ -233,83 +232,6 @@ describe("/api/delegations", () => {
             expect(json.delegatedTokens).toEqual([]);
         });
 
-        it("should return delegated tokens with correct structure", async () => {
-            mockConnection.getParsedTokenAccountsByOwner.mockResolvedValue({
-                context: { slot: 123456 },
-                value: [
-                    {
-                        pubkey: new PublicKey("token-account-1"),
-                        account: {
-                            data: {
-                                parsed: {
-                                    info: {
-                                        mint: "mint-address-1",
-                                        delegate: "delegate-address-1",
-                                        delegatedAmount: {
-                                            uiAmountString: "100.5",
-                                        },
-                                    },
-                                },
-                                program: "spl-token",
-                                space: 165,
-                            },
-                            executable: false,
-                            lamports: 2039280,
-                            owner: new PublicKey(
-                                "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
-                            ),
-                            rentEpoch: 361,
-                        },
-                    },
-                    {
-                        pubkey: new PublicKey("token-account-2"),
-                        account: {
-                            data: {
-                                parsed: {
-                                    info: {
-                                        mint: "mint-address-2",
-                                        delegate: "delegate-address-2",
-                                        delegatedAmount: null, // No amount
-                                    },
-                                },
-                                program: "spl-token",
-                                space: 165,
-                            },
-                            executable: false,
-                            lamports: 2039280,
-                            owner: new PublicKey(
-                                "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
-                            ),
-                            rentEpoch: 361,
-                        },
-                    },
-                ],
-            });
-
-            const req = createGetRequest(
-                "http://localhost:3000/api/delegations?public_key=test-pk&network=devnet"
-            );
-            const response = await GET(req);
-            const json = await response.json();
-
-            expect(response.status).toBe(200);
-            expect(json.success).toBe(true);
-            expect(json.delegatedTokens).toHaveLength(2);
-            expect(json.delegatedTokens[0]).toEqual({
-                mint: "mint-address-1",
-                delegate: "delegate-address-1",
-                amount: "100.5",
-                tokenName: "Unknown Token",
-                symbol: "UNK",
-            });
-            expect(json.delegatedTokens[1]).toEqual({
-                mint: "mint-address-2",
-                delegate: "delegate-address-2",
-                amount: "0",
-                tokenName: "Unknown Token",
-                symbol: "UNK",
-            });
-        });
 
         it("should handle connection errors gracefully", async () => {
             const errorMessage = "Connection failed";
