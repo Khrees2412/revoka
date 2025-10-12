@@ -1,11 +1,36 @@
+// Mock all Solana dependencies BEFORE imports
+jest.mock("@solana/web3.js", () => ({
+    Connection: jest.fn(),
+    PublicKey: jest.fn(),
+    Transaction: jest.fn(),
+}));
+
+jest.mock("@solana/spl-token", () => ({
+    TOKEN_PROGRAM_ID: {
+        toString: () => "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        toBase58: () => "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        toBuffer: () => Buffer.from("mock"),
+        toBytes: () => new Uint8Array(32),
+        equals: jest.fn(),
+    },
+    TOKEN_2022_PROGRAM_ID: {
+        toString: () => "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+        toBase58: () => "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+        toBuffer: () => Buffer.from("mock"),
+        toBytes: () => new Uint8Array(32),
+        equals: jest.fn(),
+    },
+    createRevokeInstruction: jest.fn(),
+}));
+
+jest.mock("@metaplex-foundation/js", () => ({
+    Metaplex: jest.fn(),
+}));
+
 import { GET, POST, PUT } from "@/app/api/delegations/route";
 import { NextRequest } from "next/server";
 import { Connection, PublicKey, Transaction } from "@solana/web3.js";
 import { createRevokeInstruction } from "@solana/spl-token";
-
-// Mock all Solana dependencies
-jest.mock("@solana/web3.js");
-jest.mock("@solana/spl-token");
 
 // Mock environment variables
 const originalEnv = process.env;

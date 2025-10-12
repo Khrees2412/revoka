@@ -49,11 +49,6 @@ export default function Home() {
     const [loading, setLoading] = useState(false);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
     const [isRefreshing, setIsRefreshing] = useState(false);
-    const [hydrated, setHydrated] = useState(false);
-
-    useEffect(() => {
-        setHydrated(true);
-    }, []);
 
     useEffect(() => {
         localStorage.setItem("network", network);
@@ -209,38 +204,36 @@ export default function Home() {
     return (
         <div className="min-h-screen bg-black text-white">
             <header className="sticky top-0 z-50 border-b border-zinc-800 bg-black/95 backdrop-blur supports-[backdrop-filter]:bg-black/60">
-                <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex h-16 items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <div className="flex h-9 w-9 items-center justify-center rounded-md bg-white">
-                                <Shield className="h-5 w-5 text-black" />
+                <div className="container mx-auto px-3 sm:px-6 lg:px-8">
+                    <div className="flex h-14 sm:h-16 items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 sm:gap-3">
+                            <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-md bg-white">
+                                <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-black" />
                             </div>
                             <div>
-                                <h1 className="text-xl font-semibold tracking-tight">
+                                <h1 className="text-base sm:text-xl font-semibold tracking-tight">
                                     Revoka
                                 </h1>
-                                <p className="text-[10px] text-zinc-500 -mt-0.5">
+                                <p className="text-[9px] sm:text-[10px] text-zinc-500 -mt-0.5">
                                     by debyth
                                 </p>
                             </div>
                         </div>
-                        <div className="flex items-center gap-3">
-                            <NetworkSelector
-                                network={network}
-                                setNetwork={setNetwork}
-                            />
-                            <WalletMultiButton className="!bg-white hover:!bg-zinc-100 !text-black !border-0 !rounded-md !font-medium !text-sm !transition-colors" />
+                        <div className="flex items-center gap-1.5 sm:gap-3">
+                            {connected && (
+                                <NetworkSelector
+                                    network={network}
+                                    setNetwork={setNetwork}
+                                />
+                            )}
+                            <WalletMultiButton className="!bg-white hover:!bg-zinc-100 !text-black !border-0 !rounded-md !font-medium !text-xs sm:!text-sm !transition-colors !px-2 sm:!px-4" />
                         </div>
                     </div>
                 </div>
             </header>
 
-            <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                {!hydrated ? (
-                    <div className="flex justify-center items-center h-64">
-                        <p className="text-zinc-500">Loading...</p>
-                    </div>
-                ) : !connected ? (
+            <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 min-h-[calc(100vh-4rem)]">
+                {!connected ? (
                     <WelcomeSection />
                 ) : (
                     <DashboardSection
@@ -359,46 +352,39 @@ const WelcomeSection = () => (
 
         {/* About / Creator Pitch */}
         <div className="max-w-3xl mx-auto mb-12">
-            <div className="border border-zinc-800 rounded-xl p-8 bg-zinc-950">
-                <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0 mt-1">
-                        <Shield className="h-5 w-5 text-zinc-400" />
-                    </div>
-                    <div>
-                        <h3 className="text-xl font-semibold mb-3">Built by Debyth</h3>
-                        <p className="text-zinc-400 leading-relaxed font-light mb-4">
-                            At <a href="https://debyth.com" target="_blank" rel="noopener noreferrer" className="text-white hover:underline">Debyth</a>,
-                            we're building automated payment infrastructure for Solana—think recurring payments
-                            and direct debits with stablecoins. These features rely on token delegations to work seamlessly.
-                        </p>
-                        <p className="text-zinc-400 leading-relaxed font-light mb-4">
-                            While building Debyth, we realized users needed an easy way to monitor and manage
-                            these approvals. Revoka solves that. Whether you're using automated payments, DeFi protocols,
-                            or any dApp that requires token approvals, Revoka gives you full visibility and control.
-                        </p>
-                        <p className="text-zinc-400 leading-relaxed font-light mb-4">
-                            No more digging through blockchain explorers or running CLI commands. Just connect your wallet,
-                            see your active delegations, and revoke the ones you don't need anymore.
-                        </p>
-                        <div className="flex gap-4">
-                            <a
-                                href="https://debyth.com"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-block text-sm text-zinc-400 hover:text-white transition-colors underline underline-offset-4"
-                            >
-                                Learn more about Debyth →
-                            </a>
-                            <a
-                                href="https://twitter.com/debyth_hq"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-block text-sm text-zinc-400 hover:text-white transition-colors underline underline-offset-4"
-                            >
-                                Follow on Twitter →
-                            </a>
-                        </div>
-                    </div>
+            <div className="border border-zinc-800 rounded-xl p-8 sm:p-10 bg-zinc-950">
+                <h3 className="text-2xl font-semibold mb-6">Built by Debyth</h3>
+                <p className="text-zinc-400 leading-relaxed font-light mb-5 text-[15px]">
+                    At <a href="https://debyth.com" target="_blank" rel="noopener noreferrer" className="text-white hover:underline">Debyth</a>,
+                    we're building automated payment infrastructure for Solana—think recurring payments
+                    and direct debits with stablecoins. These features rely on token delegations to work seamlessly.
+                </p>
+                <p className="text-zinc-400 leading-relaxed font-light mb-5 text-[15px]">
+                    While building Debyth, we realized users needed an easy way to monitor and manage
+                    these approvals. Revoka solves that. Whether you're using automated payments, DeFi protocols,
+                    or any dApp that requires token approvals, Revoka gives you full visibility and control.
+                </p>
+                <p className="text-zinc-400 leading-relaxed font-light mb-6 text-[15px]">
+                    No more digging through blockchain explorers or running CLI commands. Just connect your wallet,
+                    see your active delegations, and revoke the ones you don't need anymore.
+                </p>
+                <div className="flex flex-wrap gap-4">
+                    <a
+                        href="https://debyth.com"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-block text-sm text-zinc-400 hover:text-white transition-colors underline underline-offset-4"
+                    >
+                        Learn more about Debyth →
+                    </a>
+                    <a
+                        href="https://twitter.com/debyth_hq"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-block text-sm text-zinc-400 hover:text-white transition-colors underline underline-offset-4"
+                    >
+                        Follow on Twitter →
+                    </a>
                 </div>
             </div>
         </div>
@@ -431,7 +417,7 @@ const NetworkSelector = ({
             value={network}
             onValueChange={(value) => setNetwork(value as WalletAdapterNetwork)}
         >
-            <SelectTrigger className="w-32 bg-zinc-900 border-zinc-800 hover:bg-zinc-800 transition-colors">
+            <SelectTrigger className="w-24 sm:w-32 text-xs sm:text-sm bg-zinc-900 border-zinc-800 hover:bg-zinc-800 transition-colors">
                 <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-zinc-400 border-zinc-800">

@@ -101,39 +101,38 @@ const DelegationItem = ({
     revoking: string | null;
     onRevoke: (mint: string) => void;
 }) => (
-    <div className="p-5 bg-zinc-950 rounded-lg border border-zinc-800 hover:border-zinc-700 transition-colors">
-        <div className="flex items-start justify-between gap-4">
+    <div className="p-6 bg-zinc-950 rounded-xl border border-zinc-800 hover:border-zinc-700 transition-colors">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6">
             <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center flex-shrink-0">
-                        <span className="text-black font-semibold text-sm">
+                <div className="flex items-center gap-4 mb-6">
+                    <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center flex-shrink-0">
+                        <span className="text-black font-bold text-lg">
                             {token.symbol?.charAt(0) || "T"}
                         </span>
                     </div>
                     <div className="min-w-0 flex-1">
-                        <h4 className="font-semibold text-white text-base">
+                        <h4 className="font-semibold text-white text-lg mb-1">
                             {token.tokenName}
                         </h4>
                         <p className="text-sm text-zinc-500 font-mono">{token.symbol}</p>
                     </div>
                     <Badge
                         variant="outline"
-                        className="border-zinc-700 text-zinc-400 text-xs"
+                        className="border-zinc-700 text-zinc-400 text-xs hidden sm:inline-flex"
                     >
                         Delegated
                     </Badge>
                 </div>
-                <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2">
-                        <span className="text-zinc-500 font-medium min-w-[70px]">Delegate:</span>
-                        <span className="text-white font-mono text-xs">
-                            {token.delegate.slice(0, 8)}...
-                            {token.delegate.slice(-8)}
+                <div className="space-y-3 text-sm pl-0 sm:pl-16">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
+                        <span className="text-zinc-500 font-medium min-w-[90px]">Delegate:</span>
+                        <span className="text-white font-mono text-xs break-all sm:break-normal">
+                            {token.delegate.slice(0, 12)}...{token.delegate.slice(-12)}
                         </span>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <span className="text-zinc-500 font-medium min-w-[70px]">Amount:</span>
-                        <span className="text-white font-medium">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
+                        <span className="text-zinc-500 font-medium min-w-[90px]">Amount:</span>
+                        <span className="text-white font-semibold">
                             {token.amount} {token.symbol}
                         </span>
                     </div>
@@ -143,12 +142,12 @@ const DelegationItem = ({
                 onClick={() => onRevoke(token.mint)}
                 disabled={revoking === token.mint}
                 variant="destructive"
-                className="ml-4 shrink-0"
-                size="sm"
+                className="w-full sm:w-auto shrink-0"
+                size="default"
             >
                 {revoking === token.mint ? (
                     <>
-                        <Loader2 className="w-3.5 h-3.5 animate-spin mr-2" />
+                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
                         Revoking...
                     </>
                 ) : (
@@ -195,36 +194,36 @@ const DashboardSection = ({
                 <Loader2 className="w-4 h-4 text-zinc-400 animate-spin" />
                 <AlertDescription className="text-zinc-400 ml-2">
                     {isInitialLoading
-                        ? "Initializing network..."
+                        ? "Loading delegations..."
                         : "Switching network..."}
                 </AlertDescription>
             </Alert>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 min-h-[88px]">
             <WalletCard publicKey={publicKey} />
             <DelegationsCard tokens={tokens} />
             <SecurityStatusCard tokens={tokens} />
         </div>
 
         <Card className="bg-zinc-950 border-zinc-800">
-            <CardHeader>
-                <div className="flex items-center justify-between">
+            <CardHeader className="pb-6">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                     <div>
-                        <CardTitle className="text-white text-xl font-semibold">
+                        <CardTitle className="text-white text-2xl font-semibold mb-2">
                             Token Delegations
                         </CardTitle>
-                        <CardDescription className="text-zinc-400 font-light">
+                        <CardDescription className="text-zinc-400 font-light text-base">
                             Manage tokens where you've delegated authority to other parties
                         </CardDescription>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-wrap sm:flex-nowrap">
                         {onRevokeAll && tokens.length > 1 && (
                             <Button
                                 onClick={onRevokeAll}
                                 disabled={loading || isRefreshing || isInitialLoading || !!revoking}
                                 variant="destructive"
-                                size="sm"
+                                size="default"
                             >
                                 {loading ? (
                                     <Loader2 className="w-4 h-4 animate-spin mr-2" />
@@ -239,7 +238,7 @@ const DashboardSection = ({
                             disabled={loading || isRefreshing || isInitialLoading}
                             variant="outline"
                             className="border-zinc-800 hover:bg-zinc-900 hover:border-zinc-700 hover:text-white"
-                            size="sm"
+                            size="default"
                         >
                             {loading || isRefreshing || isInitialLoading ? (
                                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
@@ -251,9 +250,9 @@ const DashboardSection = ({
                     </div>
                 </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-0 min-h-[200px]">
                 {loading ? (
-                    <div className="flex items-center justify-center py-16">
+                    <div className="flex items-center justify-center py-20">
                         <Loader2 className="w-6 h-6 animate-spin text-zinc-400" />
                         <span className="ml-3 text-zinc-500">
                             Loading delegations...
@@ -267,7 +266,7 @@ const DashboardSection = ({
                         </AlertDescription>
                     </Alert>
                 ) : (
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                         {tokens.map((token) => (
                             <DelegationItem
                                 key={token.mint}
