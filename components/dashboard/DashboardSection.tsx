@@ -170,24 +170,48 @@ const DashboardSection = ({
     onRevoke,
     onRevokeAll,
     onClearError,
-}: DashboardSectionProps) => (
-    <div className="max-w-6xl mx-auto space-y-6">
-        {error && (
-            <Alert className="bg-red-950 border-red-900">
-                <AlertTriangle className="w-4 h-4 text-red-400" />
-                <AlertDescription className="text-red-400 flex items-center justify-between">
-                    <span>{error}</span>
-                    <Button
-                        onClick={onClearError}
-                        variant="ghost"
-                        size="sm"
-                        className="text-red-400 hover:text-red-300 h-auto p-1"
-                    >
-                        ×
-                    </Button>
-                </AlertDescription>
-            </Alert>
-        )}
+}: DashboardSectionProps) => {
+    // Detect if error message is actually a success message
+    const isSuccess = error?.startsWith('SUCCESS:');
+
+    return (
+        <div className="max-w-6xl mx-auto space-y-6">
+            {error && (
+                <Alert className={isSuccess ? "bg-green-950 border-green-900" : "bg-red-950 border-red-900"}>
+                    {isSuccess ? (
+                        <CheckCircle className="w-4 h-4 text-green-400" />
+                    ) : (
+                        <AlertTriangle className="w-4 h-4 text-red-400" />
+                    )}
+                    <AlertDescription className={`${isSuccess ? "text-green-400" : "text-red-400"} flex items-center justify-between gap-2`}>
+                        <span className="flex-1">
+                            {error.includes('https://explorer.solana.com') ? (
+                                <>
+                                    {error.replace('SUCCESS:', '').split('View:')[0]}
+                                    <a
+                                        href={error.split('View:')[1]?.trim()}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="underline hover:text-white transition-colors ml-1 font-medium"
+                                    >
+                                        View transaction
+                                    </a>
+                                </>
+                            ) : (
+                                error.replace('SUCCESS:', '')
+                            )}
+                        </span>
+                        <Button
+                            onClick={onClearError}
+                            variant="ghost"
+                            size="sm"
+                            className={`${isSuccess ? "text-green-400 hover:text-green-300" : "text-red-400 hover:text-red-300"} h-auto p-1 flex-shrink-0`}
+                        >
+                            ×
+                        </Button>
+                    </AlertDescription>
+                </Alert>
+            )}
 
         {(isInitialLoading || isRefreshing) && (
             <Alert className="bg-zinc-950 border-zinc-800">
@@ -280,6 +304,7 @@ const DashboardSection = ({
             </CardContent>
         </Card>
     </div>
-);
+    );
+};
 
 export default DashboardSection;

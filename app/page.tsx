@@ -130,7 +130,7 @@ export default function Home() {
             if (signature) {
                 const cluster = network === 'mainnet-beta' ? '' : `?cluster=${network}`;
                 const explorerUrl = `https://explorer.solana.com/tx/${signature}${cluster}`;
-                setError(`✅ Revoked successfully! View: ${explorerUrl}`);
+                setError(`SUCCESS: Revoked successfully! View: ${explorerUrl}`);
             }
 
             await fetchTokens();
@@ -184,7 +184,7 @@ export default function Home() {
             if (signature) {
                 const cluster = network === 'mainnet-beta' ? '' : `?cluster=${network}`;
                 const explorerUrl = `https://explorer.solana.com/tx/${signature}${cluster}`;
-                setError(`✅ Successfully revoked ${count} delegations! View: ${explorerUrl}`);
+                setError(`SUCCESS: Successfully revoked ${count} delegations! View: ${explorerUrl}`);
             }
 
             await fetchTokens();

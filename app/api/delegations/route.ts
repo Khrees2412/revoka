@@ -65,8 +65,13 @@ async function getTokenMetadataMetaplex(
             mintAddress: mint,
         });
         return { name: metadata.name, symbol: metadata.symbol };
-    } catch (error) {
-        console.error("Metaplex metadata fetch failed:", error);
+    } catch (error: any) {
+        // Don't log the full error for non-NFT tokens, just a simple message
+        if (error?.message?.includes('not of the expected type')) {
+            console.log(`Token ${mint.toString()} is not an NFT, skipping Metaplex fetch`);
+        } else {
+            console.error("Metaplex metadata fetch failed:", error?.message || error);
+        }
         return undefined;
     }
 }
@@ -246,18 +251,15 @@ export async function PUT(req: NextRequest) {
     try {
         const txBuffer = Buffer.from(signedTransaction, "base64");
 
-        const transaction = Transaction.from(txBuffer);
+        // Send the signed transaction as-is without modifying it
+        const signature = await connection.sendRawTransaction(txBuffer, {
+            skipPreflight: false,
+            maxRetries: 3,
+        });
 
-        // Get fresh blockhash and update transaction
+        // Get blockhash for confirmation
         const { blockhash, lastValidBlockHeight } =
             await connection.getLatestBlockhash();
-        transaction.recentBlockhash = blockhash;
-        transaction.lastValidBlockHeight = lastValidBlockHeight;
-
-        // Re-serialize with fresh blockhash (signatures are preserved)
-        const updatedTxBuffer = transaction.serialize();
-
-        const signature = await connection.sendRawTransaction(updatedTxBuffer);
 
         await connection.confirmTransaction(
             {
